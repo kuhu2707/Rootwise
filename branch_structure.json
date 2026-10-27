@@ -1,0 +1,21 @@
+{
+  "default_branch": "Kuhu",
+  "branches": [
+    "Kuhu",
+    "gunvanth",
+    "main",
+    "origin"
+  ],
+  "parent": {
+    "Kuhu": null,
+    "gunvanth": "Kuhu",
+    "main": "Kuhu",
+    "origin": "Kuhu"
+  },
+  "order": [
+    "Kuhu",
+    "gunvanth",
+    "main",
+    "origin"
+  ]
+}
