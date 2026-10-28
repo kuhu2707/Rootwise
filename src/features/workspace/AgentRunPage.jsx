@@ -18,7 +18,7 @@ const runDurations = {
   '03a.5': '1 m 18 s',
 };
 
-export function AgentRunPage({ screen, settings, onAdvance, onBack }) {
+export function AgentRunPage({ screen, settings, onAdvance, onBack, onViewReadyRows }) {
   const stepLabel = stageBadges[screen] || 'Step 1 of 4 · Prepare';
   const stage = ['03a.1', '03a.2', '03a.3', '03a.4', '03a.5'].indexOf(screen);
   const complete = screen === '03a.5';
