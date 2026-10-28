@@ -1,41 +1,147 @@
-import { ArrowRight, Check, Clock3, Sparkles } from 'lucide-react';
 import { AgentTimeline } from '../../components/AgentTimeline';
-import { Button, StatusBadge } from '../../components/ui';
-import { getCost, getFlaggedRows, getPercentChange, formatCurrency } from '../../data/mockResults';
+import { getFlaggedRows } from '../../data/mockResults';
+import { Clock3 } from 'lucide-react';
 
-const stageInfo = {
-  '03a.1': { step: 'Step 1 of 4 · Prepare', title: 'Matching root plant / SKU pairs', note: 'Aligning the two GVC outputs and validating the comparison set.' },
-  '03a.2': { step: 'Step 2 of 4 · Flag', title: 'Checking cost movements', note: 'Comparing each matched total against your threshold.' },
-  '03a.3': { step: 'Step 3 of 4 · Trace drivers', title: 'Tracing the flagged combinations', note: 'Following cost changes into BOM components and product flow nodes.' },
-  '03a.4': { step: 'Step 4 of 4 · Explain', title: 'Writing variance commentary', note: 'Creating concise explanations from the underlying GVC records.' },
-  '03a.5': { step: 'Complete · 4 of 4', title: 'Your comparison is ready', note: 'All agents finished. Review the flagged combinations and commentary.' },
+const stageBadges = {
+  '03a.1': 'Step 1 of 4 · Prepare',
+  '03a.2': 'Step 2 of 4 · Flag',
+  '03a.3': 'Step 3 of 4 · Trace drivers',
+  '03a.4': 'Step 4 of 4 · Explain',
+  '03a.5': 'Complete · 4 of 4',
+};
+
+const runDurations = {
+  '03a.1': '18 s',
+  '03a.2': '34 s',
+  '03a.3': '58 s',
+  '03a.4': '1 m 12 s',
+  '03a.5': '1 m 18 s',
 };
 
 export function AgentRunPage({ screen, settings, onAdvance, onBack }) {
-  const info = stageInfo[screen];
+  const stepLabel = stageBadges[screen] || 'Step 1 of 4 · Prepare';
   const stage = ['03a.1', '03a.2', '03a.3', '03a.4', '03a.5'].indexOf(screen);
   const complete = screen === '03a.5';
   const rows = getFlaggedRows(settings.threshold, settings.measure);
-  const visibleRows = stage < 2 ? [] : rows.slice(0, complete ? rows.length : Math.max(2, Math.ceil(rows.length * (stage === 2 ? 0.45 : 0.7))));
+  const duration = runDurations[screen] || '58 s';
 
   return (
     <div className="page-wrap run-page">
       <div className="run-page-heading">
-        <div><span className="page-kicker">AGENT RUN <i /> {info.step}</span><h1>{settings.baseline} <span>→</span> {settings.comparison}</h1><div className="run-chips"><StatusBadge tone={complete ? 'success' : 'accent'}>{complete ? 'Completed · 2 min 04 s' : 'Running · demo'}</StatusBadge><span>{settings.comparisonType}</span><span>{settings.measure}</span><span>Threshold ≥ {settings.threshold}%</span></div></div>
-        <Button variant={complete ? 'primary' : 'outline'} onClick={onAdvance}>{complete ? 'View results' : 'Continue run'} <ArrowRight size={15} /></Button>
+        <div className="run-heading-left">
+          <div className="run-badges">
+            <span className="run-badge-tag">AGENT RUN</span>
+            <span className="run-badge-step">{stepLabel}</span>
+          </div>
+          <h1>{settings.baseline} <span>→</span> {settings.comparison}</h1>
+          <div className="run-chips">
+            <span className="chip chip-status chip-running">
+              <i className="pulse-dot" /> {complete ? `Complete · ${duration}` : `Running · ${duration}`}
+            </span>
+            <span className="chip">{settings.comparisonType}</span>
+            <span className="chip">{settings.measure}</span>
+            <span className="chip">Threshold ≥ {settings.threshold}%</span>
+          </div>
+        </div>
+        <div className="run-heading-right">
+          <button className="button-cancel-run" onClick={onBack}>Cancel run</button>
+        </div>
       </div>
-      <div className="run-context"><span className="angle-avatar">{settings.baseline.slice(4, 6)}</span><span><strong>{info.title}</strong><small>{info.note}</small></span><span className="run-context-angle"><Sparkles size={13} /> {complete ? 'Read-only · no changes written to GVC' : 'Working through mock data'}</span></div>
-      <AgentTimeline screen={screen} settings={settings} />
-      {visibleRows.length > 0 ? (
-        <section className="run-findings panel">
-          <div className="run-findings-heading"><div><h2>Flagged combinations</h2><span>{rows.length} rows <i /> {complete ? 'All rows traced and explained' : 'Rows move through Trace and Explain one by one'}</span></div><span className="run-stage-note"><Clock3 size={13} /> {complete ? 'Run complete' : stage === 2 ? 'Tracing · 1 of ' + rows.length : 'Explain · 2 of ' + rows.length}</span></div>
-          <div className="run-table-scroll"><table className="run-table"><thead><tr><th>FLAGGED COMBINATION</th><th>DELTA %</th><th>TRACE DRIVERS</th><th>EXPLAIN</th></tr></thead><tbody>{visibleRows.map((row, index) => {
-            const pct = getPercentChange(row, settings.measure);
-            return <tr key={row.id}><td><span className="run-product"><i>{row.product.slice(-1)}</i><strong>{row.product}</strong><small>{row.rootPlant}</small></span></td><td><span className={`percent-pill ${pct > 0 ? 'percent-up' : 'percent-down'}`}>{pct > 0 ? '↗' : '↘'} {Math.abs(pct).toFixed(1)}%</span></td><td><span className={`run-state-pill ${complete || index < Math.max(0, stage - 1) ? 'run-state-done' : index === 0 ? 'run-state-active' : 'run-state-wait'}`}>{complete ? <Check size={11} /> : index === 0 ? <Clock3 size={11} /> : <Clock3 size={11} />}{complete ? `${row.drivers.length} drivers` : index === 0 ? 'Tracing' : 'Queued'}</span></td><td><span className={`run-state-pill ${complete ? 'run-state-done' : 'run-state-wait'}`}>{complete ? <Check size={11} /> : <Clock3 size={11} />}{complete ? 'Written' : 'Waiting'}</span></td></tr>;
-          })}</tbody></table></div>
+
+      <div className="run-pipeline-wrap" onClick={onAdvance} title="Click to advance stage (demo)" style={{ cursor: 'pointer' }}>
+        <AgentTimeline screen={screen} settings={settings} />
+      </div>
+
+      {stage >= 2 ? (
+        <section className="run-findings-card">
+          <div className="run-findings-header">
+            <h2>Flagged combinations</h2>
+            <span className="run-findings-badge">{rows.length}</span>
+            <span className="run-findings-subtitle">Rows are traced one by one</span>
+          </div>
+          <div className="run-table-wrap">
+            <table className="run-live-table">
+              <thead>
+                <tr>
+                  <th style={{ width: '38%' }}>FLAGGED COMBINATION</th>
+                  <th style={{ width: '18%' }}>DELTA %</th>
+                  <th style={{ width: '22%' }}>TRACE DRIVERS</th>
+                  <th style={{ width: '22%' }}>EXPLAIN</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row, idx) => {
+                  const isTracing = stage === 2 && idx === 0;
+                  const isTraced = stage > 2 || (stage === 2 && idx < 0);
+                  const isQueued = stage === 2 && idx > 0;
+
+                  return (
+                    <tr key={row.id}>
+                      <td>
+                        <div className="run-product-cell">
+                          <span
+                            className="run-avatar-box"
+                            style={{
+                              backgroundColor: row.letterBg || 'rgba(254, 242, 242, 1)',
+                              color: row.letterColor || 'rgba(226, 23, 0, 1)',
+                            }}
+                          >
+                            {row.letter || row.product.slice(-1)}
+                          </span>
+                          <span className="run-product-title">{row.product}</span>
+                          <span className="run-product-code">{row.rootPlant}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span
+                          className="run-delta-num"
+                          style={{ color: row.deltaColor || 'rgba(226, 23, 0, 1)' }}
+                        >
+                          ↗ {row.deltaPercent ? `${row.deltaPercent.toFixed(1)}%` : '—'}
+                        </span>
+                      </td>
+                      <td>
+                        {isTracing ? (
+                          <span className="run-status-chip chip-tracing">
+                            <i className="pulse-dot" /> Tracing
+                          </span>
+                        ) : isTraced ? (
+                          <span className="run-status-chip chip-done">
+                            Traced
+                          </span>
+                        ) : (
+                          <span className="run-status-chip chip-queued">
+                            <Clock3 size={11} /> Queued
+                          </span>
+                        )}
+                      </td>
+                      <td>
+                        <span className="run-status-chip chip-waiting">
+                          <Clock3 size={11} /> Waiting
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </section>
-      ) : <div className="run-empty panel"><span className="empty-agent-icon"><Sparkles size={17} /></span><strong>No flagged combinations yet</strong><small>Rows appear here when the Flag agent finishes.</small></div>}
-      <div className="run-bottom"><button onClick={onBack}>← Back</button><span>POC agent run · hardcoded demo states</span><Button size="sm" variant="quiet" onClick={onAdvance}>{complete ? 'Open results' : 'Advance to next stage'} <ArrowRight size={13} /></Button></div>
+      ) : (
+        <section className="run-empty-card">
+          {stage === 1 ? (
+            <>
+              <h3>Flag agent is comparing totals</h3>
+              <p>Flagged rows appear here when the comparison finishes.</p>
+            </>
+          ) : (
+            <>
+              <h3>No flagged combinations yet</h3>
+              <p>Rows appear here as soon as the Flag agent finishes.</p>
+            </>
+          )}
+        </section>
+      )}
     </div>
   );
 }

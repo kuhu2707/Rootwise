@@ -1,14 +1,19 @@
-import { Bell, ChevronDown } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { screenMap } from '../data/screenMap';
 import { Breadcrumb } from './ui';
 
-function getPageLabel(screen) {
-  return screenMap.find((item) => item.id === screen)?.label.split(' · ')[0] || 'Workspace';
+function getTrail(screen, settings) {
+  if (screen === '01') return ['Rootwise', 'Start'];
+  if (screen === '02a') return ['Comparisons', 'New comparison'];
+  if (screen.startsWith('03a')) return ['Comparisons', `${settings.baseline} → ${settings.comparison}`];
+  if (screen.startsWith('04')) return ['Comparisons', 'Results'];
+  if (screen.startsWith('05')) return ['Comparisons', 'Variance detail'];
+  const label = screenMap.find((item) => item.id === screen)?.label.split(' · ')[0] || 'Workspace';
+  return ['Comparisons', label];
 }
 
 export function TopBar({ screen, angle, onAngleChange, settings }) {
-  const pageLabel = getPageLabel(screen);
-  const trail = screen === '01' ? ['Rootwise', 'Start'] : ['Comparisons', `${settings.baseline.replace('GCC ', '')} → ${settings.comparison.replace('GCC ', '')}`, pageLabel];
+  const trail = getTrail(screen, settings);
 
   return (
     <header className="topbar">
@@ -17,10 +22,21 @@ export function TopBar({ screen, angle, onAngleChange, settings }) {
         <span className="sync-pill"><i /> SAP BDC · GVC outputs synced 09:12</span>
         <div className="angle-switch" aria-label="Analyst perspective">
           <span>Viewing as</span>
-          {['GVC Analyst', 'Cost Analyst'].map((item) => <button key={item} className={angle === item ? 'angle-switch-active' : ''} onClick={() => onAngleChange(item)}><i />{item}</button>)}
+          <div className="angle-switch-group">
+            {['GVC Analyst', 'Cost Analyst'].map((item) => (
+              <button
+                key={item}
+                className={angle === item ? 'angle-switch-active' : ''}
+                onClick={() => onAngleChange(item)}
+              >
+                <i />
+                {item}
+              </button>
+            ))}
+          </div>
         </div>
-        <button className="icon-button" aria-label="Notifications"><Bell size={17} /><i /></button>
-        <button className="profile-button" aria-label="User profile">GA<ChevronDown size={13} /></button>
+        <button className="icon-button" aria-label="Notifications"><Bell size={16} /></button>
+        <div className="profile-button" aria-label="User profile">GA</div>
       </div>
     </header>
   );

@@ -1,8 +1,8 @@
-import { ArrowRight, Check, ChevronDown, Database, Info, Sparkles } from 'lucide-react';
+import { ArrowRight, Check, ChevronDown, Database, Info } from 'lucide-react';
 import { datasetOptions, comparisonTypes, measures } from '../../data/mockResults';
-import { Button, StatusBadge } from '../../components/ui';
+import { Button } from '../../components/ui';
 
-export function SetupPage({ angle, settings, onSettingsChange, onRun, onBack }) {
+export function SetupPage({ settings, onSettingsChange, onRun }) {
   const change = (key, value) => onSettingsChange({ [key]: value });
   const chooseComparisonType = (type) => {
     const datasets = type === 'Year over year'
@@ -16,7 +16,10 @@ export function SetupPage({ angle, settings, onSettingsChange, onRun, onBack }) 
 
   return (
     <div className="page-wrap setup-page">
-      <div className="page-title-block"><span className="page-kicker">NEW COMPARISON <i /> SAME-YEAR CYCLES</span><h1>What do you want to compare?</h1><p>Pick two GVC output datasets and how far a cost must move to be flagged.</p></div>
+      <div className="page-title-block">
+        <h1>What do you want to compare?</h1>
+        <p>Pick two GVC output datasets and how far a cost must move to be flagged.</p>
+      </div>
       <section className="setup-card">
         <div className="setup-section-label">DATASETS</div>
         <div className="dataset-selectors">
@@ -34,8 +37,6 @@ export function SetupPage({ angle, settings, onSettingsChange, onRun, onBack }) 
         </div>
         <div className="setup-footer"><div className="agent-preview"><span className="agent-mini agent-mini-blue"><Database size={14} /></span><span className="agent-mini agent-mini-amber">⚑</span><span className="agent-mini agent-mini-violet">⌘</span><span className="agent-mini agent-mini-coral">✧</span><span className="agent-preview-copy"><strong>4 agents will run</strong><small>Prepare → Flag → Trace drivers → Explain · about 2 min</small></span></div><Button onClick={onRun} disabled={!validDatasets}>Run comparison <ArrowRight size={15} /></Button></div>
       </section>
-      <div className="setup-footnote"><StatusBadge tone="success">Source ready</StatusBadge><span>Switch angle any time · currently viewing as <strong>{angle}</strong></span><span className="fx-note"><Sparkles size={12} /> Year-over-year runs restate one cycle using the other cycle’s FBP FX rates.</span></div>
-      <div className="setup-bottom-actions"><button onClick={onBack}>← Back to start</button><span>Four agents · read-only on GVC outputs</span></div>
     </div>
   );
 }

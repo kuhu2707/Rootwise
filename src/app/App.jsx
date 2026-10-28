@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { ProgressSteps } from '../components/ProgressSteps';
 import { Sidebar } from '../components/Sidebar';
 import { TopBar } from '../components/TopBar';
 import { AgentRunPage } from '../features/workspace/AgentRunPage';
@@ -57,20 +56,17 @@ export default function App() {
   return (
     <div className="app-shell">
       <Sidebar activeScreen={screen} onNavigate={navigate} />
-      <div className="app-main">
-        <TopBar screen={screen} angle={angle} onAngleChange={selectAngle} settings={settings} />
-        <div className="journey-bar">
-          <ProgressSteps activeIndex={journeyIndex(screen)} />
-          <span className="journey-demo-pill"><span /> POC · MOCK DATA</span>
+      <div className="panel-wrap">
+        <div className="panel-frame">
+          <TopBar screen={screen} angle={angle} onAngleChange={selectAngle} settings={settings} />
+          <main className={`main-content ${screen === '01' ? 'main-entry' : ''}`}>
+            {screen === '01' && <EntryPage angle={angle} onAngleChange={selectAngle} onContinue={() => setScreen('02a')} />}
+            {screen === '02a' && <SetupPage settings={settings} onSettingsChange={updateSettings} onRun={() => setScreen('03a.1')} />}
+            {runScreens.includes(screen) && <AgentRunPage screen={screen} settings={settings} onAdvance={advanceRun} onBack={backFromRun} />}
+            {(screen === '04a' || screen === '04b') && <ResultsPage angle={angle} settings={settings} onAdjustThreshold={() => setScreen('02a')} onSelectRow={openRow} />}
+            {(screen === '05a' || screen === '05b') && selectedRow && <VarianceDetailPage row={selectedRow} rows={detailRows} angle={angle} settings={settings} onBack={() => setScreen(resultScreen)} onSelectRow={moveDetail} />}
+          </main>
         </div>
-        <main className={`main-content ${screen === '01' ? 'main-entry' : ''}`}>
-          {screen === '01' && <EntryPage angle={angle} onAngleChange={selectAngle} onContinue={() => setScreen('02a')} />}
-          {screen === '02a' && <SetupPage angle={angle} settings={settings} onSettingsChange={updateSettings} onRun={() => setScreen('03a.1')} onBack={() => setScreen('01')} />}
-          {runScreens.includes(screen) && <AgentRunPage screen={screen} settings={settings} onAdvance={advanceRun} onBack={backFromRun} />}
-          {(screen === '04a' || screen === '04b') && <ResultsPage angle={angle} settings={settings} onAdjustThreshold={() => setScreen('02a')} onSelectRow={openRow} />}
-          {(screen === '05a' || screen === '05b') && selectedRow && <VarianceDetailPage row={selectedRow} rows={detailRows} angle={angle} settings={settings} onBack={() => setScreen(resultScreen)} onSelectRow={moveDetail} />}
-        </main>
-        <footer className="app-footer"><span>Rootwise · Cost intelligence</span><span>Demo workspace · Source data is illustrative</span></footer>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { Activity, Database, Home, Plus, Settings, TableProperties } from 'lucide-react';
+import { Activity, Home, PanelLeft, Plus, Settings, TableProperties } from 'lucide-react';
 import { BrandMark } from './ui';
 
 const navigation = [
@@ -11,17 +11,28 @@ const navigation = [
 export function Sidebar({ onNavigate, activeScreen }) {
   return (
     <aside className="sidebar" aria-label="Workspace navigation">
-      <button className="rail-workspace" aria-label="GVC AI Platform workspace"><BrandMark compact /><span>GVC AI Platform</span></button>
+      <button className="rail-workspace" aria-label="GVC AI Platform workspace" onClick={() => onNavigate('01')}>
+        <BrandMark compact />
+      </button>
       <nav className="rail-nav">
         {navigation.map(({ id, label, icon: Icon }) => {
-          const active = id === activeScreen || (id === '03a.1' && activeScreen.startsWith('03a')) || (id === 'results' && ['04a', '04b', '05a', '05b'].includes(activeScreen));
-          return <button key={id} className={`rail-item ${active ? 'rail-active' : ''}`} title={label} aria-label={label} onClick={() => onNavigate(id)}><Icon size={18} strokeWidth={1.8} /></button>;
+          const active = id === activeScreen || (id === '02a' && activeScreen === '02a') || (id === '03a.1' && activeScreen.startsWith('03a')) || (id === 'results' && ['04a', '04b', '05a', '05b'].includes(activeScreen));
+          return (
+            <button
+              key={id}
+              className={`rail-item ${active ? 'rail-active' : ''}`}
+              title={label}
+              aria-label={label}
+              onClick={() => onNavigate(id)}
+            >
+              <Icon size={20} strokeWidth={1.75} />
+            </button>
+          );
         })}
       </nav>
       <div className="rail-spacer" />
-      <button className="rail-item" title="Data sources" aria-label="Data sources"><Database size={17} /></button>
-      <button className="rail-item" title="Settings" aria-label="Settings"><Settings size={17} /></button>
-      <div className="rail-profile" title="GVC Analyst">GA</div>
+      <button className="rail-item" title="Toggle panel" aria-label="Toggle panel"><PanelLeft size={19} strokeWidth={1.75} /></button>
+      <button className="rail-item" title="Settings" aria-label="Settings"><Settings size={19} strokeWidth={1.75} /></button>
     </aside>
   );
 }
