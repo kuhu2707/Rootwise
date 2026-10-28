@@ -58,7 +58,7 @@ export default function App() {
       <Sidebar activeScreen={screen} onNavigate={navigate} />
       <div className="panel-wrap">
         <div className="panel-frame">
-          <TopBar screen={screen} angle={angle} onAngleChange={selectAngle} settings={settings} />
+          <TopBar screen={screen} angle={angle} onAngleChange={selectAngle} settings={settings} selectedProduct={selectedRow?.product} />
           <main className={`main-content ${screen === '01' ? 'main-entry' : ''}`}>
             {screen === '01' && <EntryPage angle={angle} onAngleChange={selectAngle} onContinue={() => setScreen('02a')} />}
             {screen === '02a' && <SetupPage settings={settings} onSettingsChange={updateSettings} onRun={() => setScreen('03a.1')} />}
